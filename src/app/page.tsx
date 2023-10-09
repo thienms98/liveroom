@@ -30,7 +30,7 @@ export interface Room {
 
 export default function Home() {
   const router = useRouter();
-  const [userName, setUserName] = useState<string>(localStorage.getItem('username') || '');
+  const [userName, setUserName] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [rooms, setRooms] = useState<Room[]>([]);
   const { users, updateUsers } = useMainContext();
@@ -42,6 +42,7 @@ export default function Home() {
   console.log(rooms);
 
   useEffect(() => {
+    setUserName(localStorage.getItem('username') || '');
     fetch('http://localhost:3000/api/room')
       .then((res) => res.json())
       .then((data) => setRooms(data || []));

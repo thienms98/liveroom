@@ -32,7 +32,7 @@ export default function Page() {
         console.error(e);
       }
     })();
-  }, []);
+  }, [name, room]);
 
   if (token === '') {
     return <div>Getting token...</div>;

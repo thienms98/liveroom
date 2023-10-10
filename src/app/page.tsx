@@ -130,7 +130,7 @@ export default function Home() {
           {rooms.map(({ roomName, room, participants }, index) => (
             <div
               key={roomName}
-              className="border border-black bg-[#2e2e2e] rounded-lg transition-all flex flex-col p-3 w-[25%] lg:w-[400px] h-[250px] cursor-pointer"
+              className="border border-black bg-[#2e2e2e] rounded-lg transition-all flex flex-col p-3 w-full md:w-[50%] xl:w-[25%] h-[250px] cursor-pointer"
               onContextMenu={async (e) => {
                 e.preventDefault();
                 await fetch('/api/room', {

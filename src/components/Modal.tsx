@@ -15,7 +15,7 @@ const Modal = ({
     open && (
       <div className={`fixed top-0 left-0 w-screen h-screen ${className}`} onClick={() => onCancel()}>
         <div
-          className="absolute w-[30%] min-h-[200px] p-4 top-[30%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-white shadow-lg text-black flex flex-col"
+          className="absolute w-full md:w-[30%] min-h-[200px] p-4 top-0 md:top-[30%] left-[50%] translate-x-[-50%] md:translate-y-[-50%] bg-white shadow-lg text-black flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex-1">{children}</div>

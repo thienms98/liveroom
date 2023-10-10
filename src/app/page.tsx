@@ -30,9 +30,7 @@ export default function Home() {
 
   useEffect(() => {
     setUserName(localStorage.getItem('username') || '');
-    fetch('/api/room')
-      .then((res) => res.json())
-      .then((data) => setRooms(data || []));
+    getRooms();
   }, []);
 
   useEffect(() => {
@@ -41,6 +39,12 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('rooms', JSON.stringify(rooms));
   }, [rooms]);
+
+  const getRooms = async () => {
+    const res = await fetch('/api/room');
+    const data = await res.json();
+    setRooms(data || []);
+  };
 
   async function fetchCreate<T>(value: string): Promise<T> {
     const newRoom = await fetch('/api/room', {
@@ -78,6 +82,20 @@ export default function Home() {
     ]);
   };
 
+  const removeParticipant = async (room: string, identity: string) => {
+    await fetch('/api/participants', {
+      method: 'delete',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        room,
+        identity,
+      }),
+    });
+    await getRooms();
+  };
+
   return (
     <main className="flex flex-col bg-[#111] min-h-screen">
       <div className="h-24 flex flex-row p-6 gap-3">
@@ -98,14 +116,11 @@ export default function Home() {
       <div
         className="flex-1 bg-[#1e1e1e] rounded-lg m-3 overflow-auto relative flex flex-col gap-4 p-4"
         ref={containerRef}
-        onClick={() => {
+        onClick={async () => {
           if (!userSelect) return;
-          const pos = users.findIndex((user) => user.username === userSelect);
-          if (pos === -1) return;
-
-          const arr = [...users];
-          arr[pos].room = '';
-          updateUsers(arr);
+          const room = rooms.find((room) => room.participants.find((user) => user.identity === userSelect));
+          if (!room) return;
+          await removeParticipant(room.roomName, userSelect);
           setUserSelect('');
         }}
       >
@@ -144,7 +159,7 @@ export default function Home() {
               <div className="relative">
                 {participants.map(({ sid, identity, metadata }) => (
                   <div
-                    className={`absolute w-12 h-12 rounded-full overflow-hidden object-contain cursor-pointer text-center top-4 ${
+                    className={`absolute w-12 h-12 rounded-full overflow-hidden object-contain cursor-pointer text-center top-4 border border-white ${
                       identity === userSelect ? 'border-2 border-blue-500' : ''
                     }`}
                     style={{ backgroundImage: `url(${metadata})`, left: 16 + 24 * index }}
@@ -154,9 +169,7 @@ export default function Home() {
                       e.stopPropagation();
                       setUserSelect(identity === userSelect ? '' : identity);
                     }}
-                  >
-                    {identity}
-                  </div>
+                  ></div>
                 ))}
               </div>
             </div>
@@ -228,7 +241,7 @@ export default function Home() {
           }}
         >
           <label htmlFor="username" className="block">
-            Your name
+            Enter your name
           </label>
           <input
             type="text"

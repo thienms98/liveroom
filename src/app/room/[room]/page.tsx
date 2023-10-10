@@ -9,7 +9,7 @@ import {
   useTracks,
   RoomAudioRenderer,
   ControlBar,
-  useParticipants,
+  StartAudio,
 } from '@livekit/components-react';
 import { useEffect, useState } from 'react';
 import { Track, Room } from 'livekit-client';
@@ -19,11 +19,11 @@ import { useMainContext } from '@/components/Context';
 export default function Page() {
   // TODO: get user input for room and name
   const { room } = useParams();
-  const name = localStorage.getItem('username');
   const [token, setToken] = useState('');
 
   useEffect(() => {
     (async () => {
+      const name = localStorage.getItem('username');
       try {
         const resp = await fetch(`/api/get-participant-token?room=${room}&username=${name}`);
         const data = await resp.json();
@@ -32,7 +32,7 @@ export default function Page() {
         console.error(e);
       }
     })();
-  }, [name, room]);
+  }, [room]);
 
   if (token === '') {
     return <div>Getting token...</div>;

@@ -53,5 +53,8 @@ export async function POST(req: NextRequest){
   if(!room) return NextResponse.json({},{status: 500})
   console.log('room created', room);
   return NextResponse.json({success: true, room}, {status: 200})
+}
 
+export function PUT(req:NextRequest){
+  // const 
 }

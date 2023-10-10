@@ -30,7 +30,7 @@ export default function Home() {
 
   useEffect(() => {
     setUserName(localStorage.getItem('username') || '');
-    fetch('http://localhost:3000/api/room')
+    fetch('/api/room')
       .then((res) => res.json())
       .then((data) => setRooms(data || []));
   }, []);
@@ -43,7 +43,7 @@ export default function Home() {
   }, [rooms]);
 
   async function fetchCreate<T>(value: string): Promise<T> {
-    const newRoom = await fetch('http://localhost:3000/api/room', {
+    const newRoom = await fetch('/api/room', {
       method: 'post',
       headers: {
         'Content-type': 'application/json',

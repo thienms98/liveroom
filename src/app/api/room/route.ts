@@ -8,28 +8,33 @@ const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
 const livekitHost = 'wss://liveroom-d65fdh81.livekit.cloud'
 
 export async function GET(){
-  try{
+  // try{
+    if (!apiKey || !apiSecret || !wsUrl) {
+      return NextResponse.json(
+        { error: "Server misconfigured" },
+        { status: 500 }
+      );
+    }
+    const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
-  if (!apiKey || !apiSecret || !wsUrl) {
-    return NextResponse.json(
-      { error: "Server misconfigured" },
-      { status: 500 }
-    );
-  }
-  const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
-
-  roomService.listRooms().then((rooms: Room[]) => {
-    return NextResponse.json({rooms});
-  })}
-  catch(err){
-    console.error(err);
-    return NextResponse.json({},{status: 500})
-  }
-  return NextResponse.json([])
+    const rooms:Room[] = await roomService.listRooms()
+    let result = []
+    for(const room of rooms){
+      const participants = await roomService.listParticipants(room.name);
+      result.push({roomName: room.name, room, participants})
+    }
+    console.log('rooms ', {...result})
+    return NextResponse.json(result);
+  // }
+  // catch(err){
+  //   console.error(err);
+  //   return NextResponse.json({},{status: 500})
+  // }
+  // return NextResponse.json([])
 }
 
 export async function POST(req: NextRequest){
-  const {room: {roomName}} = await req.json()
+  const {room: roomName} = await req.json()
 
   if (!apiKey || !apiSecret || !wsUrl) {
     return NextResponse.json(
@@ -44,9 +49,9 @@ export async function POST(req: NextRequest){
   };
   const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
   
-  roomService.createRoom(opts).then((room: Room) => {
-    console.log('room created', room);
-  });
+  const room = await roomService.createRoom(opts)
+  if(!room) return NextResponse.json({},{status: 500})
+  console.log('room created', room);
+  return NextResponse.json({success: true, room}, {status: 200})
 
-  return NextResponse.json({}, {status: 200})
 }

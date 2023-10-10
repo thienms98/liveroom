@@ -4,6 +4,7 @@ import { useMainContext } from '@/components/Context';
 import Modal from '@/components/Modal';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import type { Room, ParticipantInfo } from 'livekit-server-sdk';
 
 export interface User {
   username: string;
@@ -15,31 +16,17 @@ export interface User {
   };
   room: string;
 }
-export interface Room {
-  roomname: string;
-  position: {
-    top: number;
-    left: number;
-    zIndex: number;
-  };
-  size: {
-    width: number;
-    height: number;
-  };
-}
 
 export default function Home() {
   const router = useRouter();
   const [userName, setUserName] = useState<string>('');
   const [text, setText] = useState<string>('');
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [rooms, setRooms] = useState<{ roomName: string; room: Room; participants: ParticipantInfo[] }[]>([]);
   const { users, updateUsers } = useMainContext();
   const [userSelect, setUserSelect] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
   const [roomName, setRoomName] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
-
-  console.log(rooms);
 
   useEffect(() => {
     setUserName(localStorage.getItem('username') || '');
@@ -55,8 +42,8 @@ export default function Home() {
     localStorage.setItem('rooms', JSON.stringify(rooms));
   }, [rooms]);
 
-  const createRoom = async (value: string) => {
-    await fetch('http://localhost:3000/api/room', {
+  async function fetchCreate<T>(value: string): Promise<T> {
+    const newRoom = await fetch('http://localhost:3000/api/room', {
       method: 'post',
       headers: {
         'Content-type': 'application/json',
@@ -65,24 +52,19 @@ export default function Home() {
         room: value,
       }),
     });
-    setRooms((prev) => {
-      return [
-        ...prev,
-        {
-          roomname: text || 'room' + prev.length,
-          position: {
-            top: Math.floor(Math.random() * 200),
-            left: Math.floor(Math.random() * 500),
-            zIndex: 1,
-          },
-          size: {
-            width: 400,
-            height: 250,
-          },
-          users: [],
-        },
-      ];
-    });
+    const data = await newRoom.json();
+    return data.room;
+  }
+  const createRoom = async (value: string) => {
+    const newRoom = await fetchCreate<Room>(value);
+    setRooms((prev) => [
+      ...prev,
+      {
+        roomName: newRoom.name,
+        room: newRoom,
+        participants: [],
+      },
+    ]);
   };
 
   const createUser = () => {
@@ -128,24 +110,26 @@ export default function Home() {
         }}
       >
         <div className="flex flex-row flex-wrap gap-4">
-          {rooms.map((room, index) => (
+          {rooms.map(({ roomName, room, participants }, index) => (
             <div
-              key={room.roomname}
+              key={roomName}
               className="border border-black bg-[#2e2e2e] rounded-lg transition-all flex flex-col"
               style={{
                 // ...room.position,
-                ...room.size,
+                // ...room.size,
+                width: 300,
+                height: 250,
               }}
               onClick={(e) => {
                 e.stopPropagation();
                 if (!userSelect) {
-                  router.push('/room/' + room.roomname);
+                  router.push('/room/' + roomName);
                   return;
                 }
                 const pos = users.findIndex((user) => user.username === userSelect);
                 if (pos === -1) return;
                 const arr = [...users];
-                arr[pos].room = room.roomname;
+                arr[pos].room = roomName;
                 updateUsers(arr);
                 setUserSelect('');
               }}
@@ -156,24 +140,24 @@ export default function Home() {
               // }}
               // onMouseUp={(e) => setMovingRoom(-1)}
             >
-              <span>{room.roomname}</span>
+              <span>{roomName}</span>
               <div className="relative">
-                {users
-                  .filter((user) => user.room && user.room === room.roomname)
-                  .map(({ username, image }, index) => (
-                    <div
-                      className={`absolute w-12 h-12 rounded-full overflow-hidden object-contain cursor-pointer top-4 ${
-                        username === userSelect ? 'border-2 border-blue-500' : ''
-                      }`}
-                      style={{ backgroundImage: `url(${image})`, left: 16 + 24 * index }}
-                      key={index}
-                      title={username}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setUserSelect(username === userSelect ? '' : username);
-                      }}
-                    ></div>
-                  ))}
+                {participants.map(({ sid, identity, metadata }) => (
+                  <div
+                    className={`absolute w-12 h-12 rounded-full overflow-hidden object-contain cursor-pointer text-center top-4 ${
+                      identity === userSelect ? 'border-2 border-blue-500' : ''
+                    }`}
+                    style={{ backgroundImage: `url(${metadata})`, left: 16 + 24 * index }}
+                    key={sid}
+                    title={identity}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setUserSelect(identity === userSelect ? '' : identity);
+                    }}
+                  >
+                    {identity}
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -195,7 +179,9 @@ export default function Home() {
                       e.stopPropagation();
                       setUserSelect(username === userSelect ? '' : username);
                     }}
-                  ></div>
+                  >
+                    {}
+                  </div>
                 ),
             )}
         </div>

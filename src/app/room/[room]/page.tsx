@@ -71,8 +71,6 @@ function MyVideoConference() {
   const { room } = useParams();
   const [chosenOne, setChosenOne] = useState<TrackReferenceOrPlaceholder[] | null>([]); //participant choice
 
-  console.log(chosenOne);
-
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -99,6 +97,8 @@ function MyVideoConference() {
       <GridLayout tracks={chosenOne?.[0] ? chosenOne : tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
         <ParticipantTile
           onParticipantClick={(e) => {
+            console.log(e);
+
             if (chosenOne) {
               setChosenOne(null);
             } else
@@ -106,7 +106,7 @@ function MyVideoConference() {
                 {
                   participant: e.participant,
                   publication: e.track || undefined,
-                  source: Track.Source.Camera,
+                  source: e.track?.source || Track.Source.Unknown,
                 },
               ]);
           }}

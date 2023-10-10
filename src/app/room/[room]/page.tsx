@@ -9,15 +9,21 @@ import {
   useTracks,
   RoomAudioRenderer,
   ControlBar,
+  VideoConference,
   StartAudio,
+  TrackLoop,
+  TrackRefContext,
+  VideoTrack,
+  useTrack,
+  CarouselLayout,
+  formatChatMessageLinks,
 } from '@livekit/components-react';
 import { useEffect, useState } from 'react';
-import { Track, Room } from 'livekit-client';
+import { Track, Room, VideoPresets } from 'livekit-client';
 import { User } from '@/app/page';
 import { useMainContext } from '@/components/Context';
 
 export default function Page() {
-  // TODO: get user input for room and name
   const { room } = useParams();
   const [token, setToken] = useState('');
 
@@ -40,22 +46,33 @@ export default function Page() {
 
   return (
     <LiveKitRoom
+      token={token}
+      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+      options={{
+        // videoCaptureDefaults: {
+        //   deviceId: userChoices.videoDeviceId ?? undefined,
+        //   resolution: hq === 'true' ? VideoPresets.h2160 : VideoPresets.h720,
+        // },
+        // audioCaptureDefaults: {
+        //   deviceId: userChoices.audioDeviceId ?? undefined,
+        // },
+        publishDefaults: {
+          red: false,
+          dtx: false,
+          videoSimulcastLayers: [VideoPresets.h1080, VideoPresets.h720],
+        },
+        adaptiveStream: { pixelDensity: 'screen' },
+        dynacast: true,
+      }}
       video={true}
       audio={true}
-      token={token}
-      connectOptions={{ autoSubscribe: false }}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      // Use the default LiveKit theme for nice styles.
       data-lk-theme="default"
       style={{ height: '100dvh' }}
     >
-      {/* Your custom component with basic video conferencing functionality. */}
       <MyVideoConference />
-      {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
       <RoomAudioRenderer />
-      {/* Controls for the user to start/stop audio, video, and screen 
-      share tracks and to leave the room. */}
       <ControlBar />
+      {/* <VideoConference chatMessageFormatter={formatChatMessageLinks} /> */}
     </LiveKitRoom>
   );
 }
@@ -72,9 +89,7 @@ function MyVideoConference() {
   );
   return (
     <GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
-      {/* The GridLayout accepts zero or one child. The child is used
-      as a template to render all passed in tracks. */}
-      <ParticipantTile />
+      <ParticipantTile></ParticipantTile>
     </GridLayout>
   );
 }

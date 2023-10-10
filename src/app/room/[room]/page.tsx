@@ -1,10 +1,11 @@
 'use client';
 
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import '@livekit/components-styles';
-import { LiveKitRoom, GridLayout, ParticipantTile, useTracks, RoomAudioRenderer, ControlBar, useParticipants, VideoConference, ConnectionStateToast } from '@livekit/components-react';
+import { LiveKitRoom, GridLayout, ParticipantTile, useTracks, RoomAudioRenderer, ControlBar, useParticipants, VideoConference, ConnectionStateToast, VideoTrack, ParticipantName } from '@livekit/components-react';
 import { useEffect, useState } from 'react';
 import { Track, Room, VideoPresets } from 'livekit-client';
+import type { TrackReferenceOrPlaceholder } from '@livekit/components-core';
 
 export default function Page() {
   const { room } = useParams();
@@ -68,6 +69,9 @@ function MyVideoConference() {
   // joins without a published camera track, a placeholder track is returned.
   const participants = useParticipants();
   const { room } = useParams();
+  const [chosenOne, setChosenOne] = useState<TrackReferenceOrPlaceholder[] | null>([]); //participant choice
+
+  console.log(chosenOne);
 
   const tracks = useTracks(
     [
@@ -92,8 +96,21 @@ function MyVideoConference() {
 
   return (
     <div className="grid grid-cols-[auto_150px]">
-      <GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
-        <ParticipantTile />
+      <GridLayout tracks={chosenOne && chosenOne?.[0]?.participant && chosenOne?.[0]?.publication ? chosenOne : tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
+        <ParticipantTile
+          onParticipantClick={(e) => {
+            if (chosenOne) {
+              setChosenOne(null);
+            } else
+              setChosenOne([
+                {
+                  participant: e.participant,
+                  publication: e.track || undefined,
+                  source: Track.Source.Camera,
+                },
+              ]);
+          }}
+        />
       </GridLayout>
       <div className="rounded-lg bg-[#1e1e1e] max-h-[calc(100vh_-_16px_-_var(--lk-control-bar-height))] overflow-y-auto px-4 py-2 m-2 ml-0 flex flex-col gap-2">
         {participants.map(({ sid, identity, metadata }) => (

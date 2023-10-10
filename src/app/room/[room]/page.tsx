@@ -96,7 +96,7 @@ function MyVideoConference() {
 
   return (
     <div className="grid grid-cols-[auto_150px]">
-      <GridLayout tracks={chosenOne && chosenOne?.[0]?.participant && chosenOne?.[0]?.publication ? chosenOne : tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
+      <GridLayout tracks={chosenOne?.[0] ? chosenOne : tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
         <ParticipantTile
           onParticipantClick={(e) => {
             if (chosenOne) {

@@ -2,26 +2,9 @@
 
 import { useParams, useSearchParams } from 'next/navigation';
 import '@livekit/components-styles';
-import {
-  LiveKitRoom,
-  GridLayout,
-  ParticipantTile,
-  useTracks,
-  RoomAudioRenderer,
-  ControlBar,
-  VideoConference,
-  StartAudio,
-  TrackLoop,
-  TrackRefContext,
-  VideoTrack,
-  useTrack,
-  CarouselLayout,
-  formatChatMessageLinks,
-} from '@livekit/components-react';
+import { LiveKitRoom, GridLayout, ParticipantTile, useTracks, RoomAudioRenderer, ControlBar, useParticipants, VideoConference, ConnectionStateToast } from '@livekit/components-react';
 import { useEffect, useState } from 'react';
 import { Track, Room, VideoPresets } from 'livekit-client';
-import { User } from '@/app/page';
-import { useMainContext } from '@/components/Context';
 
 export default function Page() {
   const { room } = useParams();
@@ -60,18 +43,21 @@ export default function Page() {
           red: false,
           dtx: false,
           videoSimulcastLayers: [VideoPresets.h1080, VideoPresets.h720],
+          screenShareSimulcastLayers: [VideoPresets.h1080, VideoPresets.h720],
         },
         adaptiveStream: { pixelDensity: 'screen' },
         dynacast: true,
       }}
-      video={true}
+      video={false}
       audio={true}
       data-lk-theme="default"
       style={{ height: '100dvh' }}
     >
       <MyVideoConference />
+      {/* <VideoConference /> */}
       <RoomAudioRenderer />
-      <ControlBar />
+      <ControlBar controls={{ screenShare: false }} />
+      <ConnectionStateToast />
       {/* <VideoConference chatMessageFormatter={formatChatMessageLinks} /> */}
     </LiveKitRoom>
   );
@@ -80,6 +66,9 @@ export default function Page() {
 function MyVideoConference() {
   // `useTracks` returns all camera and screen share tracks. If a user
   // joins without a published camera track, a placeholder track is returned.
+  const participants = useParticipants();
+  const { room } = useParams();
+
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -87,9 +76,40 @@ function MyVideoConference() {
     ],
     { onlySubscribed: false },
   );
+
+  const removeParticipant = (identity: string) => {
+    fetch('/api/participants', {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        room,
+        identity,
+      }),
+    });
+  };
+
   return (
-    <GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
-      <ParticipantTile></ParticipantTile>
-    </GridLayout>
+    <div className="grid grid-cols-[auto_150px]">
+      <GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
+        <ParticipantTile />
+      </GridLayout>
+      <div className="rounded-lg bg-[#1e1e1e] max-h-[calc(100vh_-_16px_-_var(--lk-control-bar-height))] overflow-y-auto px-4 py-2 m-2 ml-0 flex flex-col gap-2">
+        {participants.map(({ sid, identity, metadata }) => (
+          <div
+            key={sid}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              removeParticipant(identity);
+            }}
+            className="flex flex-row gap-2 items-center cursor-pointer box-border"
+          >
+            <div className="w-6 h-6 rounded-full overflow-hidden inline-block bg-[#2e2e2e]" style={{ backgroundImage: `url(${metadata})` }}></div>
+            <span>{identity}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

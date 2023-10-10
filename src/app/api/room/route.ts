@@ -6,6 +6,7 @@ const apiKey = process.env.LIVEKIT_API_KEY;
 const apiSecret = process.env.LIVEKIT_API_SECRET;
 const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
 const livekitHost = 'wss://liveroom-d65fdh81.livekit.cloud'
+
 const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
 export async function GET(){

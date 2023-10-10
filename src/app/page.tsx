@@ -143,11 +143,11 @@ export default function Home() {
               onClick={() => router.push('/room/' + roomName)}
             >
               <span className="bg-[#3e3e3e] text-white rounded-full border border-[#1e1e1e] px-2 self-start select-none">{roomName}</span>
-              <div className="relative">
+              <div className="relative mt-4 flex flex-row flex-wrap gap-2">
                 {participants.map(({ sid, identity, metadata }, index) => (
                   <button
-                    className={`absolute w-12 h-12 rounded-full overflow-hidden object-contain cursor-pointer text-center top-4 border bg-[#4e4e4e] border-[#0e0e0e] focus:border-blue-500 focus:border-2`}
-                    style={{ backgroundImage: `url(${metadata})`, left: 16 + 48 * index }}
+                    className={`px-3 rounded-full overflow-hidden object-contain cursor-pointer text-center top-4 border bg-blue-200 text-black border-[#0e0e0e] focus:border-blue-500 focus:border-2`}
+                    // style={{ backgroundImage: `url(${metadata})`, left: 16 + 48 * index }}
                     key={sid}
                     title={identity}
                     onClick={(e) => {

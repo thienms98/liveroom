@@ -56,7 +56,7 @@ export default function Page() {
       <MyVideoConference />
       {/* <VideoConference /> */}
       <RoomAudioRenderer />
-      <ControlBar controls={{ screenShare: false }} />
+      <ControlBar controls={{ screenShare: true }} />
       <ConnectionStateToast />
       {/* <VideoConference chatMessageFormatter={formatChatMessageLinks} /> */}
     </LiveKitRoom>

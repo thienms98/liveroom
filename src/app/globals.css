@@ -24,3 +24,6 @@ body {
 .lk-pagination-control {
   bottom: 56px !important;
 }
+.lk-participant-media-video {
+  object-fit: contain !important;
+}

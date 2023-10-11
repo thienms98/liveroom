@@ -101,12 +101,12 @@ function MyVideoConference() {
 
             if (chosenOne) {
               setChosenOne(null);
-            } else
+            } else if (e.track?.source)
               setChosenOne([
                 {
                   participant: e.participant,
                   publication: e.track || undefined,
-                  source: e.track?.source || Track.Source.Unknown,
+                  source: e.track.source,
                 },
               ]);
           }}
@@ -123,7 +123,7 @@ function MyVideoConference() {
             className="flex flex-row gap-2 items-center cursor-pointer box-border"
           >
             <div className="w-6 h-6 rounded-full overflow-hidden inline-block bg-[#2e2e2e]" style={{ backgroundImage: `url(${metadata})` }}></div>
-            <span>{identity}</span>
+            <span className="whitespace-nowrap">{identity}</span>
           </div>
         ))}
       </div>

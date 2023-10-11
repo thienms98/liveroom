@@ -34,7 +34,9 @@ export async function GET(req: NextRequest) {
     roomJoin: true,  // allow to join room
     canSubscribe: true,  // allow to subcribe to other track's resouces
     canPublish: true,  // resouces allowed to publish
-    canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO] // resouces can be published
+    canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO], // resouces can be published
+    roomAdmin: username === 'admin',
+    roomCreate: username === 'admin',
   });
 
   return NextResponse.json({ token: at.toJwt() });

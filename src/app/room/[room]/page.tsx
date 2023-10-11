@@ -93,8 +93,8 @@ function MyVideoConference() {
   };
 
   return (
-    <div className="grid grid-cols-[auto_150px]">
-      <GridLayout tracks={chosenOne?.[0] ? chosenOne : tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
+    <div className="grid md:grid-cols-[auto_150px] md:grid-rows-1 grid-rows-[60px_auto] h-[calc(100vh_-_var(--lk-control-bar-height))]">
+      <GridLayout tracks={chosenOne?.[0] ? chosenOne : tracks} style={{ height: '100%' }}>
         <ParticipantTile
           onParticipantClick={(e) => {
             console.log(e);
@@ -112,7 +112,7 @@ function MyVideoConference() {
           }}
         />
       </GridLayout>
-      <div className="rounded-lg bg-[#1e1e1e] max-h-[calc(100vh_-_16px_-_var(--lk-control-bar-height))] overflow-y-auto px-4 py-2 m-2 ml-0 flex flex-col gap-2">
+      <div className="order-[-1] md:order-1 rounded-lg bg-[#1e1e1e] md:max-h-[calc(100vh_-_var(--lk-control-bar-height))] overflow-y-auto px-4 py-2 m-2 md:ml-0 flex flex-row md:flex-col gap-2">
         {participants.map(({ sid, identity, metadata }) => (
           <div
             key={sid}

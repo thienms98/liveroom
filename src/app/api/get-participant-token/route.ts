@@ -29,7 +29,13 @@ export async function GET(req: NextRequest) {
 
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
 
-  at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true, canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO]});
+  at.addGrant({ 
+    room,  // room name
+    roomJoin: true,  // allow to join room
+    canSubscribe: true,  // allow to subcribe to other track's resouces
+    canPublish: true,  // resouces allowed to publish
+    canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO] // resouces can be published
+  });
 
   return NextResponse.json({ token: at.toJwt() });
 }

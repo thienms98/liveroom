@@ -91,71 +91,71 @@ function CustomVideoConference() {
   );
 
   return (
-    <LayoutContextProvider value={layoutContext} onWidgetChange={widgetUpdate}>
-      <div className="lk-video-conference">
-        {localParticipant.permissions?.canSubscribe ? (
-          <LayoutContextProvider
-            value={layoutContext}
-            // onPinChange={handleFocusStateChange}
-            onWidgetChange={widgetUpdate}
-          >
-            <div className="lk-video-conference-inner">
-              {!focusTrack || subscribedTracks.length === 1 ? (
-                <div className="lk-grid-layout-wrapper">
-                  <GridLayout tracks={subscribedTracks}>
+    // <LayoutContextProvider value={layoutContext} onWidgetChange={widgetUpdate}>
+    <div className="lk-video-conference">
+      {localParticipant.permissions?.canSubscribe ? (
+        <LayoutContextProvider
+          value={layoutContext}
+          // onPinChange={handleFocusStateChange}
+          onWidgetChange={widgetUpdate}
+        >
+          <div className="lk-video-conference-inner">
+            {!focusTrack || subscribedTracks.length === 1 ? (
+              <div className="lk-grid-layout-wrapper">
+                <GridLayout tracks={subscribedTracks}>
+                  <ParticipantTile />
+                </GridLayout>
+              </div>
+            ) : (
+              <div className="lk-focus-layout-wrapper">
+                <FocusLayoutContainer>
+                  <CarouselLayout tracks={carouselTracks}>
                     <ParticipantTile />
-                  </GridLayout>
-                </div>
-              ) : (
-                <div className="lk-focus-layout-wrapper">
-                  <FocusLayoutContainer>
-                    <CarouselLayout tracks={carouselTracks}>
-                      <ParticipantTile />
-                    </CarouselLayout>
-                    {focusTrack && <FocusLayout trackRef={focusTrack} />}
-                  </FocusLayoutContainer>
-                </div>
-              )}
-              <CustomControlBar>
-                <div className="lk-button" onClick={() => toggleParticipants()}>
-                  Participants
-                </div>
-                <ControlBar controls={{ chat: true }} />
-              </CustomControlBar>
-            </div>
-            {widgetState.showChat && (
-              <Chat
-                style={{ margin: '8px', borderRadius: '8px' }}
-                // messageFormatter={chatMessageFormatter}
-                // messageEncoder={chatMessageEncoder}
-                // messageDecoder={chatMessageDecoder}
-              />
-            )}
-            {showParticipants && (
-              <div className="lk-chat m-2 p-2 ml-0 bg-[#1e1e1e] rounded-lg">
-                <Lobby
-                  participants={participants}
-                  removeParticipant={removeParticipant}
-                  updateParticipantPermision={updateParticipantPermision}
-                />
-                <Subscribers
-                  participants={participants}
-                  removeParticipant={removeParticipant}
-                  updateParticipantPermision={updateParticipantPermision}
-                />
+                  </CarouselLayout>
+                  {focusTrack && <FocusLayout trackRef={focusTrack} />}
+                </FocusLayoutContainer>
               </div>
             )}
-          </LayoutContextProvider>
-        ) : (
-          <h1>
-            Wait to enter the room
-            <ImSpinner2 className="animate-spin inline" />
-          </h1>
-        )}
-        <RoomAudioRenderer />
-        <ConnectionStateToast />
-      </div>
-    </LayoutContextProvider>
+            <CustomControlBar>
+              <div className="lk-button" onClick={() => toggleParticipants()}>
+                Participants
+              </div>
+              <ControlBar controls={{ chat: true }} />
+            </CustomControlBar>
+          </div>
+          {widgetState.showChat && (
+            <Chat
+              style={{ margin: '8px', borderRadius: '8px' }}
+              // messageFormatter={chatMessageFormatter}
+              // messageEncoder={chatMessageEncoder}
+              // messageDecoder={chatMessageDecoder}
+            />
+          )}
+          {showParticipants && (
+            <div className="lk-chat m-2 p-2 ml-0 bg-[#1e1e1e] rounded-lg">
+              <Lobby
+                participants={participants}
+                removeParticipant={removeParticipant}
+                updateParticipantPermision={updateParticipantPermision}
+              />
+              <Subscribers
+                participants={participants}
+                removeParticipant={removeParticipant}
+                updateParticipantPermision={updateParticipantPermision}
+              />
+            </div>
+          )}
+        </LayoutContextProvider>
+      ) : (
+        <h1>
+          Wait to enter the room
+          <ImSpinner2 className="animate-spin inline" />
+        </h1>
+      )}
+      <RoomAudioRenderer />
+      <ConnectionStateToast />
+    </div>
+    // </LayoutContextProvider>
   );
 }
 

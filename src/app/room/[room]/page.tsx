@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import '@livekit/components-styles';
 import {
@@ -7,6 +8,7 @@ import {
   RoomAudioRenderer,
   ConnectionStateToast,
   VideoConference,
+  useToken,
 } from '@livekit/components-react';
 import { useEffect, useState } from 'react';
 import { VideoPresets } from 'livekit-client';
@@ -15,6 +17,7 @@ import CustomVideoConference from '@/components/CustomVideoConference';
 export default function Page() {
   const { room } = useParams();
   const [token, setToken] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -51,6 +54,7 @@ export default function Page() {
       audio={true}
       data-lk-theme="default"
       style={{ height: '100dvh' }}
+      onDisconnected={() => router.push('/')}
     >
       {/* <VideoConference /> */}
       <CustomVideoConference />

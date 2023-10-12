@@ -22,7 +22,6 @@ export async function PUT(req:NextRequest){
   if(!host || !apiKey || !apiSecret) return NextResponse.json({message: 'misconfig'})
 
   const {data: {room, identity, permission}} = await req.json();
-  console.log({room, identity, permission});
   
   const verifier = new TokenVerifier(apiKey, apiSecret)
   const token = req.headers.get('Cookie')?.slice(6);

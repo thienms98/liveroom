@@ -33,7 +33,7 @@ export async function POST(req: NextRequest){
   const {room: roomName} = await req.json()
   const opts = {
     name: roomName,
-    emptyTimeout: 3 * 60, // 3 minutes
+    emptyTimeout: 60 * 60, // 60 minutes
     maxParticipants: 20,
   };
   

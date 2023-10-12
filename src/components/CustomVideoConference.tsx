@@ -13,9 +13,9 @@ import {
   CarouselLayout,
   FocusLayout,
   usePinnedTracks,
-  ControlBar,
   RoomAudioRenderer,
   ConnectionStateToast,
+  ControlBar,
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import type {
@@ -31,17 +31,24 @@ import Lobby from './Lobby';
 import Subscribers from './Subscribers';
 import axios from 'axios';
 import { ImSpinner2 } from 'react-icons/im';
+import CustomControlBar from './CustomControlBar';
 
 function CustomVideoConference() {
   const participants = useParticipants();
   const { localParticipant } = useLocalParticipant();
   const { room } = useParams();
+  const [showParticipants, setShowParticipants] = useState<boolean>(false);
   const [widgetState, setWidgetState] = useState<WidgetState>({
     showChat: false,
     unreadMessages: 0,
   });
   const widgetUpdate = (state: WidgetState) => {
     setWidgetState(state);
+    setShowParticipants(false);
+  };
+  const toggleParticipants = () => {
+    setWidgetState((prev) => ({ ...prev, showChat: false }));
+    setShowParticipants((prev) => !prev);
   };
   const tracks = useTracks(
     [
@@ -52,7 +59,6 @@ function CustomVideoConference() {
   );
   const layoutContext = useCreateLayoutContext();
   const focusTrack = usePinnedTracks(layoutContext)?.[0];
-  const carouselTracks = tracks.filter((track) => !isEqualTrackRef(track, focusTrack));
 
   const removeParticipant = (identity: string) => {
     axios.delete('/api/participants', {
@@ -77,6 +83,7 @@ function CustomVideoConference() {
     () => tracks.filter((track) => track.participant.permissions?.canSubscribe),
     [tracks],
   );
+  const carouselTracks = subscribedTracks.filter((track) => !isEqualTrackRef(track, focusTrack));
 
   return (
     <LayoutContextProvider value={layoutContext} onWidgetChange={widgetUpdate}>
@@ -88,9 +95,9 @@ function CustomVideoConference() {
             onWidgetChange={widgetUpdate}
           >
             <div className="lk-video-conference-inner">
-              {!focusTrack ? (
+              {!focusTrack || subscribedTracks.length === 1 ? (
                 <div className="lk-grid-layout-wrapper">
-                  <GridLayout tracks={tracks}>
+                  <GridLayout tracks={subscribedTracks}>
                     <ParticipantTile />
                   </GridLayout>
                 </div>
@@ -104,15 +111,22 @@ function CustomVideoConference() {
                   </FocusLayoutContainer>
                 </div>
               )}
-              <ControlBar controls={{ chat: true }} />
+              <CustomControlBar>
+                <div className="lk-button" onClick={() => toggleParticipants()}>
+                  Participants
+                </div>
+                <ControlBar controls={{ chat: true }} />
+              </CustomControlBar>
             </div>
-            {widgetState.showChat ? (
+            {widgetState.showChat && (
               <Chat
-              // messageFormatter={chatMessageFormatter}
-              // messageEncoder={chatMessageEncoder}
-              // messageDecoder={chatMessageDecoder}
+                style={{ margin: '8px', borderRadius: '8px' }}
+                // messageFormatter={chatMessageFormatter}
+                // messageEncoder={chatMessageEncoder}
+                // messageDecoder={chatMessageDecoder}
               />
-            ) : (
+            )}
+            {showParticipants && (
               <div className="lk-chat m-2 p-2 ml-0 bg-[#1e1e1e] rounded-lg">
                 <Lobby
                   participants={participants}

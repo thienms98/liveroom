@@ -25,8 +25,8 @@ import type {
   WidgetState,
 } from '@livekit/components-core';
 import { isEqualTrackRef } from '@livekit/components-core';
-import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useMemo, useState, useCallback } from 'react';
 import Lobby from './Lobby';
 import Subscribers from './Subscribers';
 import axios from 'axios';
@@ -34,6 +34,7 @@ import { ImSpinner2 } from 'react-icons/im';
 import CustomControlBar from './CustomControlBar';
 
 function CustomVideoConference() {
+  const router = useRouter();
   const participants = useParticipants();
   const { localParticipant } = useLocalParticipant();
   const { room } = useParams();
@@ -42,14 +43,15 @@ function CustomVideoConference() {
     showChat: false,
     unreadMessages: 0,
   });
-  const widgetUpdate = (state: WidgetState) => {
+
+  const widgetUpdate = useCallback((state: WidgetState) => {
     setWidgetState(state);
     setShowParticipants(false);
-  };
-  const toggleParticipants = () => {
+  }, []);
+  const toggleParticipants = useCallback(() => {
     setWidgetState((prev) => ({ ...prev, showChat: false }));
     setShowParticipants((prev) => !prev);
-  };
+  }, []);
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -83,7 +85,10 @@ function CustomVideoConference() {
     () => tracks.filter((track) => track.participant.permissions?.canSubscribe),
     [tracks],
   );
-  const carouselTracks = subscribedTracks.filter((track) => !isEqualTrackRef(track, focusTrack));
+  const carouselTracks = useMemo(
+    () => subscribedTracks.filter((track) => !isEqualTrackRef(track, focusTrack)),
+    [subscribedTracks, focusTrack],
+  );
 
   return (
     <LayoutContextProvider value={layoutContext} onWidgetChange={widgetUpdate}>
@@ -143,7 +148,8 @@ function CustomVideoConference() {
           </LayoutContextProvider>
         ) : (
           <h1>
-            Waiting for joining room <ImSpinner2 className="animate-spin inline" />
+            Wait to enter the room
+            <ImSpinner2 className="animate-spin inline" />
           </h1>
         )}
         <RoomAudioRenderer />

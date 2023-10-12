@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
   cookies().set('token', at.toJwt())
-  const isAllowed = username.includes('admin')
+  const isAllowed = username.includes('dev')
   at.addGrant({ 
     room,  // room name
     roomJoin: true,  // allow to join room

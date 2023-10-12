@@ -29,7 +29,7 @@ export async function PUT(req:NextRequest){
   if(!token) return NextResponse.json({},{status: 401})
   const data = verifier.verify(token) as {sub:string}
 
-  if(data.sub.includes('admin')){
+  if(data.sub.includes('dev')){
     const roomService = new RoomServiceClient(host, apiKey, apiSecret);
     await roomService.updateParticipant(room, identity, undefined, permission)
     return NextResponse.json({success: true})
@@ -47,7 +47,7 @@ export async function DELETE(req:NextRequest){
   if(!token) return NextResponse.json({},{status: 401})
   const data = verifier.verify(token) as {sub:string}
 
-  if(data.sub.includes('admin')){
+  if(data.sub.includes('dev')){
     const roomService = new RoomServiceClient(host, apiKey, apiSecret);
     await roomService.removeParticipant(room, identity)
     return NextResponse.json({success: true})

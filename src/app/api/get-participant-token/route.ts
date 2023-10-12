@@ -1,5 +1,6 @@
 import { AccessToken, TrackSource } from "livekit-server-sdk";
 import { NextRequest, NextResponse } from "next/server";
+import {cookies} from 'next/headers'
 
 export async function GET(req: NextRequest) {
   const room = req.nextUrl.searchParams.get("room");
@@ -28,15 +29,17 @@ export async function GET(req: NextRequest) {
   }
 
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
-
+  cookies().set('token', at.toJwt())
+  const isAllowed = username.includes('admin')
   at.addGrant({ 
     room,  // room name
     roomJoin: true,  // allow to join room
-    canSubscribe: true,  // allow to subcribe to other track's resouces
-    canPublish: true,  // resouces allowed to publish
+    canSubscribe: isAllowed,  // allow to subcribe to other track's resouces
+    canPublish: isAllowed,  // resouces allowed to publish
     canPublishSources: [TrackSource.CAMERA, TrackSource.MICROPHONE, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO], // resouces can be published
-    roomAdmin: username === 'admin',
-    roomCreate: username === 'admin',
+    roomAdmin: isAllowed,
+    roomCreate: isAllowed,
+    ingressAdmin: isAllowed
   });
 
   return NextResponse.json({ token: at.toJwt() });

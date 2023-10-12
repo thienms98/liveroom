@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { AccessToken, Room, RoomServiceClient } from "livekit-server-sdk";
 
 
-const apiKey = process.env.LIVEKIT_API_KEY;
-const apiSecret = process.env.LIVEKIT_API_SECRET;
-const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
-const livekitHost = 'wss://liveroom-d65fdh81.livekit.cloud'
+// const apiKey = process.env.LIVEKIT_API_KEY;
+// const apiSecret = process.env.LIVEKIT_API_SECRET;
+// const livekitHost = process.env.NEXT_PUBLIC_LIVEKIT_URL;
+const apiKey = 'devkey';
+const apiSecret = 'secret';
+const livekitHost = 'http://localhost:7880'
+
 
 const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
